@@ -5,9 +5,9 @@ upstreams:
   - name: user_service_upstream  # Single upstream for user service
     targets:
       - target: user-service-v1:5000
-        weight: ${USER_SERVICE_V1_WEIGHT}
+        weight: 50
       - target: user-service-v2:5000
-        weight: ${USER_SERVICE_V2_WEIGHT}
+        weight: 50
   - name: order_service_upstream
     targets:
       - target: order-service:5000

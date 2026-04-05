@@ -1,27 +1,39 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-# Validate P_VALUE
 if [ -z "$P_VALUE" ]; then
     echo "Error: P_VALUE environment variable not set"
     exit 1
 fi
 
-echo $P_VALUE
-# Set weights
-export USER_SERVICE_V1_WEIGHT=$P_VALUE
-export USER_SERVICE_V2_WEIGHT=$((100 - P_VALUE))
+echo "Raw P_VALUE=$P_VALUE"
 
-echo $USER_SERVICE_V1_WEIGHT
-echo $USER_SERVICE_V2_WEIGHT
+case "$P_VALUE" in
+  0)
+    USER_SERVICE_V1_WEIGHT=0
+    ;;
+  1)
+    USER_SERVICE_V1_WEIGHT=100
+    ;;
+  0.5)
+    USER_SERVICE_V1_WEIGHT=50
+    ;;
+  *)
+    echo "Error: P_VALUE must be 0, 0.5, or 1"
+    exit 1
+    ;;
+esac
 
-# Replace environment variables in kong.yml.template
+USER_SERVICE_V2_WEIGHT=$((100 - USER_SERVICE_V1_WEIGHT))
+
+export USER_SERVICE_V1_WEIGHT
+export USER_SERVICE_V2_WEIGHT
+
+echo "USER_SERVICE_V1_WEIGHT=$USER_SERVICE_V1_WEIGHT"
+echo "USER_SERVICE_V2_WEIGHT=$USER_SERVICE_V2_WEIGHT"
+
 envsubst < /etc/kong/kong.yml.template > /etc/kong/kong.yml
 
-cat /etc/kong/kong.yml
-
-# Prepare Kong prefix directory
 kong prepare -p /usr/local/kong
 
-# Start Kong
-exec kong start --nginx-conf /usr/local/kong/nginx.conf --vv
+exec kong start --nginx-conf /usr/local/kong/nginx.conf
