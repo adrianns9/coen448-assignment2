@@ -356,3 +356,16 @@ class TestTC04_StranglerPattern:
         assert len(v2_hits) == 0, (
             f"P=100: {len(v2_hits)}/10 requests unexpectedly reached v2"
         )
+
+    # --- P = 50: traffic must be split between both versions ---
+
+    def test_p50_both_versions_receive_traffic(self):
+        """With P=50, both v1 and v2 must receive at least one request."""
+        restart_kong(50)
+        results = create_users_batch(20, prefix="p50")
+
+        v1_count = sum(1 for u in results if not is_v2_response(u))
+        v2_count = len(results) - v1_count
+
+        assert v1_count > 0, "P=50: no requests reached v1"
+        assert v2_count > 0, "P=50: no requests reached v2"
