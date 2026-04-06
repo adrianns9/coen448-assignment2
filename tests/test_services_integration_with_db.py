@@ -155,7 +155,6 @@ class TestTC01_CreateAndRetrieveUser:
 
 # ===================================================================
 # TC 02 — Create Order
-# Covers: Screenshot 8 (Create Order), 9 (Order in DB)
 # ===================================================================
 
 class TestTC02_CreateOrder:
